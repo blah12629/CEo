@@ -2,3 +2,7 @@
 	path = src/ML
 	url = https://github.com/blah12629/CEo.ML.git
 	branch = main
+[submodule "src/Genshin"]
+	path = src/Genshin
+	url = https://github.com/blah12629/CEo.Genshin.git
+	branch = main
