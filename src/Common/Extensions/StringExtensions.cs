@@ -1,7 +1,9 @@
 using System.Text.RegularExpressions;
 
-namespace System {
-    public static partial class StringExtensions {
+namespace System
+{
+    public static partial class StringExtensions
+    {
         static String _multipleWhiteSpacesPattern = @"(?<!^)(?<!\s)\s\s+(?!\s)(?!$)";
 
         // https://stackoverflow.com/a/1211435

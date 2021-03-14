@@ -1,6 +1,7 @@
 using System;
 
-namespace CEo.ArithmeticProviders {
+namespace CEo.ArithmeticProviders
+{
     internal class SingleArithmeticProvider : IArithmeticProvider<Single>
     {
         public virtual Single Add(Single left, Single right) => left + right;

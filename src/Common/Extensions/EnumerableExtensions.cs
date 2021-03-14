@@ -2,7 +2,8 @@ using System.Collections.Generic;
 
 namespace System.Linq
 {
-    public static partial class EnumerableExtensions {
+    public static partial class EnumerableExtensions
+    {
         public static IEnumerable<IEnumerable<T>> Split<T>(
             this IEnumerable<T> collection,
             Int32 splitSize)

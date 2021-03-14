@@ -1,7 +1,9 @@
 using System.Threading.Tasks;
 
-namespace System.Threading {
-    public static partial class CancellationTokenExtensions {
+namespace System.Threading
+{
+    public static partial class CancellationTokenExtensions
+    {
         public static void ThrowIfTaskCancellationRequested(
             this CancellationToken cancellationToken)
         {

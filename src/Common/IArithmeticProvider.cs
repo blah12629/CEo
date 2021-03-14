@@ -4,7 +4,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CEo {
+namespace CEo
+{
     public interface IArithmeticProvider
     {
         Object Add(Object left, Object right);
@@ -34,7 +35,8 @@ namespace CEo {
         T Negate(T value);
     }
 
-    public class ArithmeticProvider<T> : IArithmeticProvider<T> where T : notnull {
+    public class ArithmeticProvider<T> : IArithmeticProvider<T> where T : notnull
+    {
         protected static ConcurrentDictionary<Type, IArithmeticProvider> Providers { get; } =
             new ConcurrentDictionary<Type, IArithmeticProvider>(new[]
             {
