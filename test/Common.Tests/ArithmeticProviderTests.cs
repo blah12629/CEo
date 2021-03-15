@@ -1,5 +1,6 @@
 using FluentAssertions;
 using System;
+using System.Drawing;
 using Xunit;
 
 namespace CEo.Tests
@@ -12,10 +13,7 @@ namespace CEo.Tests
             new Action(() => new ArithmeticProvider<UInt64>())
                 .Should().Throw<ArgumentException>();
 
-            new Action(() => new ArithmeticProvider<Object>())
-                .Should().Throw<ArgumentException>();
-
-            new Action(() => new ArithmeticProvider<FactAttribute>())
+            new Action(() => new ArithmeticProvider<Point>())
                 .Should().Throw<ArgumentException>();
         }
 

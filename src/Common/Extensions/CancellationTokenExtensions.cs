@@ -7,7 +7,7 @@ namespace System.Threading
         public static void ThrowIfTaskCancellationRequested(
             this CancellationToken cancellationToken)
         {
-            if(cancellationToken.IsCancellationRequested)
+            if (cancellationToken.IsCancellationRequested)
                 throw new TaskCanceledException();
         }
     }

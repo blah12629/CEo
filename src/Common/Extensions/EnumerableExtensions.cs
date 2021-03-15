@@ -11,7 +11,7 @@ namespace System.Linq
             Single collectionSize = collection.Count(),
                 maximumI = collectionSize / splitSize;
 
-            for(var i = 0; i < maximumI; i ++)
+            for (var i = 0; i < maximumI; i ++)
                 yield return collection.Skip(i * splitSize).Take(splitSize);
         }
 
@@ -24,7 +24,7 @@ namespace System.Linq
             this IEnumerable<T> collection,
             IEnumerable<Int32> indices)
         {
-            foreach(var index in indices)
+            foreach (var index in indices)
                 yield return collection.ElementAt(index);
         }
     }
