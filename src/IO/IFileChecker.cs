@@ -6,7 +6,7 @@ namespace CEo.IO
 {
     public interface IFileChecker
     {
-        Boolean FileExists(String fielPath);
+        Boolean FileExists(String filePath);
     }
 
     public interface IFileCheckerOptions { }

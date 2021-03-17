@@ -1,124 +1,148 @@
-// using Microsoft.Extensions.Logging;
-// using System;
-// using System.Drawing;
-// using System.IO;
-// using System.Text.Json;
-// using System.Threading;
-// using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Drawing;
+using System.IO;
+using System.IO.Abstractions;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 
-// namespace CEo.IO
-// {
-//     public interface IFileReader
-//     {
-//         Task<Bitmap> ReadBitmapAsync(
-//             String bitmapPath,
-//             CancellationToken cancellationToken = default);
+namespace CEo.IO
+{
+    public interface IFileReader : IFileChecker
+    {
+        Task<Bitmap> ReadBitmapAsync(
+            String bitmapPath,
+            CancellationToken cancellationToken = default);
 
-//         Task<Image> ReadImageAsync(
-//             String imagePath,
-//             CancellationToken cancellationToken = default);
+        Task<Image> ReadImageAsync(
+            String imagePath,
+            CancellationToken cancellationToken = default);
 
-//         Task<T> ReadJsonAsync<T>(
-//             String jsonPath,
-//             JsonSerializerOptions serializerOptions = default,
-//             CancellationToken cancellationToken = default);
+        Task<T> ReadJsonAsync<T>(
+            String jsonPath,
+            JsonSerializerOptions? serializerOptions = default,
+            CancellationToken cancellationToken = default);
 
-//         Task<String> ReadStringAsync(
-//             String stringPath,
-//             CancellationToken cancellationToken = default);
-//     }
+        Task<String> ReadStringAsync(
+            String stringPath,
+            CancellationToken cancellationToken = default);
+    }
 
-//     internal class FileReader : IFileReader
-//     {
-//         public FileReader(ILogger logger)
-//         {
-//             Logger = logger;
-//             FileChecker = new FileChecker(Logger);
-//         }
-//         public FileReader(IFileChecker fileChecker, ILogger logger) : this(logger) =>
-//             FileChecker = fileChecker;
+    public interface IFileReaderOptions : IFileCheckerOptions { }
 
-//         protected IFileChecker FileChecker { get; }
-//         protected ILogger Logger { get; }
+    public class FileReader : IFileReader
+    {
+        public FileReader(
+            IFileReaderOptions? options = default,
+            ILogger? logger = default) :
+                this(new FileSystem(), options, logger) { }
+        public FileReader(
+            IFileSystem fileSystem,
+            IFileReaderOptions? options = default,
+            ILogger? logger = default)
+        {
+            (Options, Logger) = (options ?? new FileReaderOptions(), logger);
+            FileSystem = fileSystem;
+            FileChecker = new FileChecker(FileSystem, Options, Logger);
+        }
+        public FileReader(
+            IFileSystem fileSystem,
+            IFileChecker fileChecker,
+            IFileReaderOptions? options = default,
+            ILogger? logger = default) :
+                this(fileSystem, options, logger) =>
+                    FileChecker = fileChecker;
 
-//         protected internal virtual FileStream OpenRead(String filePath)
-//         {
-//             if (filePath == default || !FileChecker.FileExists(filePath))
-//             {
-//                 Logger?.LogWarning($"File `{ filePath ?? "null" }` does not exists.");
-//                 return default;
-//             }
+        protected IFileSystem FileSystem { get; }
+        protected IFileChecker FileChecker { get; }
+        protected IFileReaderOptions Options { get; }
+        protected ILogger? Logger { get; }
 
-//             return File.OpenRead(filePath);
-//         }
+        public virtual Boolean FileExists(String filePath) =>
+            FileChecker.FileExists(filePath);
 
-//         public virtual async Task<Bitmap> ReadBitmapAsync(
-//             String bitmapPath,
-//             CancellationToken cancellationToken = default) =>
-//                 await ReadImageAsync(bitmapPath, cancellationToken) as Bitmap;
+        protected internal virtual Stream OpenRead(String filePath) =>
+            FileSystem.File.OpenRead(filePath);
 
-//         public virtual async Task<Image> ReadImageAsync(
-//             String imagePath,
-//             CancellationToken cancellationToken = default)
-//         {
-//             using var memory = new MemoryStream();
+        public virtual async Task<Bitmap> ReadBitmapAsync(
+            String bitmapPath,
+            CancellationToken cancellationToken = default) =>
+                (Bitmap)await ReadImageAsync(bitmapPath, cancellationToken);
 
-//             using(var file = OpenRead(imagePath))
-//                 if (file == default) return default;
-//                 else await file.CopyToAsync(memory, cancellationToken);
+        public virtual async Task<Image> ReadImageAsync(
+            String imagePath,
+            CancellationToken cancellationToken = default)
+        {
+            using var memory = new MemoryStream();
 
-//             try
-//             {
-//                 return Image.FromStream(memory);
-//             }
-//             catch(ArgumentException)
-//             {
-//                 Logger?.LogError($"File `{ imagePath }` cannot be read as an image.");
-//                 return default;
-//             }
-//         }
+            using (var file = OpenRead(imagePath))
+                await file.CopyToAsync(memory, cancellationToken);
 
-//         // Tests:
-//         // - Empty file
-//         // - Invalid json format
-//         // - Uncastable types => probably from a dictionary to an array
-//         // - Castable types => Test1 : Test0; json file is Test1, T is Test0
-//         public virtual async Task<T> ReadJsonAsync<T>(
-//             String jsonPath,
-//             JsonSerializerOptions serializerOptions = default,
-//             CancellationToken cancellationToken = default)
-//         {
-//             using var file = OpenRead(jsonPath);
-//             if (file == default) return default(T);
+            try
+            {
+                return Image.FromStream(memory);
+            }
+            catch(ArgumentException)
+            {
+                Logger?.LogError($"File `{ imagePath }` cannot be read as an image.");
+                throw;
+            }
+        }
 
-//             try
-//             {
-//                 return await JsonSerializer
-//                     .DeserializeAsync<T>(file, serializerOptions, cancellationToken);
-//             }
-//             catch (Exception exception)
-//             {
-//                 if (exception is JsonException || exception is NotSupportedException) {
-//                     Logger?.LogError($@"File `{
-//                         jsonPath }` cannot be deserialized to `{
-//                         typeof(T).Name }`.");
+        /// <summary>
+        ///   <para></para>
+        /// </summary>
+        /// <param name="jsonPath">
+        ///   <para></para>
+        /// </param>
+        /// <param name="serializerOptions">
+        ///   <para></para>
+        /// </param>
+        /// <param name="cancellationToken">
+        ///   <para></para>
+        /// </param>
+        /// <typeparam name="T">
+        ///   <para></para>
+        /// </typeparam>
+        /// <returns>
+        ///   <remarks>
+        ///     Will return null if the content of the file is null.
+        ///   </remarks>
+        /// </returns>
+        public virtual async Task<T?> ReadJsonAsync<T>(
+            String jsonPath,
+            JsonSerializerOptions? serializerOptions = default,
+            CancellationToken cancellationToken = default)
+        {
+            using var file = OpenRead(jsonPath);
 
-//                     return default(T);
-//                 }
+            try
+            {
+                return await JsonSerializer.DeserializeAsync<T>(
+                    file, serializerOptions, cancellationToken);
+            }
+            catch(Exception exception)
+            {
+                if (exception is JsonException || exception is NotSupportedException)
+                    Logger?.LogError(
+                        $@"File `{jsonPath}` cannot be " +
+                        "deserialized to `{typeof(T).Name}`.");
+                throw;
+            }
 
-//                 throw;
-//             }
-//         }
+        }
 
-//         public virtual async Task<String> ReadStringAsync(
-//             String stringPath,
-//             CancellationToken cancellationToken = default)
-//         {
-//             using var file = OpenRead(stringPath);
-//             if (file == default) return default;
+        // UNTESTED
+        public virtual async Task<String> ReadStringAsync(
+            String stringPath,
+            CancellationToken cancellationToken = default)
+        {
+            using var file = OpenRead(stringPath);
+            using var reader = new StreamReader(file);
+            return await reader.ReadToEndAsync();
+        }
+    }
 
-//             using var reader = new StreamReader(file);
-//             return await reader.ReadToEndAsync();
-//         }
-//     }
-// }
+    public record FileReaderOptions : IFileReaderOptions { }
+}
