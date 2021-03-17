@@ -1,31 +1,20 @@
 using FluentAssertions;
 using System;
-using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
 using Xunit;
 
 namespace CEo.IO.Tests
 {
-    public class FileCheckerTests
+    public class FileCheckerTests : IClassFixture<FileSystemFixture>
     {
         protected MockFileSystem FileSystem { get; }
         protected FileChecker FileChecker { get; }
 
-        public FileCheckerTests() : this(new MockFileSystem(
-            new Dictionary<String, MockFileData>
-            {
-                [@"C:\normal_text.txt"] = new MockFileData("test txt file"),
-                [@"C:\corrupt_files\corrupt_image.png"] = new MockFileData("test image file"),
-                [@"C:\corrupt_files\corrupt_json.json"] = new MockFileData("test json file")
-            },
-            currentDirectory: @"C:\")) { }
-        protected FileCheckerTests(MockFileSystem fileSystem)
+        public FileCheckerTests(FileSystemFixture fileSystemFixture)
         {
-            FileSystem = fileSystem;
-            FileChecker = new FileChecker(fileSystem, new FileCheckerOptions(), default);
+            FileSystem = fileSystemFixture.FileSystem;
+            FileChecker = new FileChecker(FileSystem);
         }
-        protected FileCheckerTests(MockFileSystem fileSystem, FileChecker fileChecker) :
-            this(fileSystem) => FileChecker = fileChecker;
 
         [Theory]
         [InlineData(@"nonexistent_folder\corrupt_files\corrupt_image.png", @"C:\")]

@@ -1,5 +1,8 @@
+using Microsoft.Extensions.Logging;
 using System;
 using System.Drawing;
+using System.IO;
+using System.IO.Abstractions;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,6 +27,94 @@ namespace CEo.IO
         Task WriteStringAsync(
             String value, String stringPath,
             CancellationToken cancellationToken = default);
+    }
+
+    public interface IFileWriterOptions : IFileCheckerOptions, IDirectoryManagerOptions
+    {
+        internal const Boolean DefualtCreateDirectories = true,
+            DefaultWarnOnOverwrite = false;
+
+        Boolean CreateDirectories { get; }
+        Boolean WarnOnOverwrite { get; }
+    }
+
+    public class FileWriter : IFileWriter
+    {
+        public FileWriter(
+            IFileWriterOptions? options = default,
+            ILogger? logger = default) :
+                this(new FileSystem(), options, logger) { }
+        public FileWriter(
+            IFileSystem fileSystem,
+            IFileWriterOptions? options = default,
+            ILogger? logger = default)
+        {
+            (Options, Logger) = (options ?? new FileWriterOptions(), logger);
+            FileSystem = fileSystem;
+            FileChecker = new FileChecker(FileSystem, Options, Logger);
+            DirectoryManager = new DirectoryManager(FileSystem, Options, Logger);
+        }
+
+        protected IFileSystem FileSystem { get; }
+        protected IFileChecker FileChecker { get; }
+        protected IDirectoryManager DirectoryManager { get; }
+        protected IFileWriterOptions Options { get; }
+        protected ILogger? Logger { get; }
+
+        /// <summary>
+        ///   <para></para>
+        /// </summary>
+        /// <param name="filePath">
+        ///   <para></para>
+        /// </param>
+        /// <returns>
+        ///   <para>
+        ///     Null when <see cref="filePath" /> is a directory.
+        ///   </para>
+        /// </returns>
+        protected internal virtual FileStream? OpenRead(String filePath)
+        {
+            if (DirectoryManager.DirectoryExists(filePath)) return default;
+
+            if (Options.CreateDirectories)
+            {
+                // May return null
+                var directoryPath = Path.GetDirectoryName(filePath);
+            }
+
+            // File.OpenRead()
+            throw new NotImplementedException();
+        }
+
+        public virtual Task WriteBitmapAsync(
+            Bitmap bitmap, String bitmapPath,
+            CancellationToken cancellationToken = default) =>
+                throw new NotImplementedException();
+
+        public virtual Task WriteImageAsync(
+            Image image, String imagePath,
+            CancellationToken cancellationToken = default) =>
+                throw new NotImplementedException();
+
+        public virtual Task WriteJsonAsync<T>(
+            T value, String jsonPath,
+            JsonSerializerOptions? serializerOptions = default,
+            CancellationToken cancellationToken = default) =>
+                throw new NotImplementedException();
+
+        public virtual Task WriteStringAsync(
+            String value, String stringPath,
+            CancellationToken cancellationToken = default) =>
+                throw new NotImplementedException();
+    }
+
+    public record FileWriterOptions : IFileWriterOptions
+    {
+        public Boolean CreateDirectories { get; init; } =
+            IFileWriterOptions.DefualtCreateDirectories;
+
+        public Boolean WarnOnOverwrite { get; init; } =
+            IFileWriterOptions.DefaultWarnOnOverwrite;
     }
 }
 

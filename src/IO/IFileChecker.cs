@@ -9,17 +9,22 @@ namespace CEo.IO
         Boolean FileExists(String fielPath);
     }
 
+    public interface IFileCheckerOptions { }
+
     public class FileChecker : IFileChecker
     {
-        public FileChecker(IFileCheckerOptions options, ILogger? logger)
-        {
-            (Options, Logger) = (options, logger);
-            FileSystem = new FileSystem();
-        }
         public FileChecker(
-            IFileSystem fileSystem, IFileCheckerOptions options, ILogger? logger) :
-                this(options, logger) =>
-                    FileSystem = fileSystem;
+            IFileCheckerOptions? options = default,
+            ILogger? logger = default) :
+                this(new FileSystem(), options, logger) { }
+        public FileChecker(
+            IFileSystem fileSystem,
+            IFileCheckerOptions? options = default,
+            ILogger? logger = default)
+        {
+            (Options, Logger) = (options ?? new FileCheckerOptions(), logger);
+            FileSystem = fileSystem;
+        }
 
         protected IFileSystem FileSystem { get; }
         protected IFileCheckerOptions Options { get; }
@@ -28,8 +33,6 @@ namespace CEo.IO
         public virtual Boolean FileExists(String filePath) =>
             FileSystem.File.Exists(filePath);
     }
-
-    public interface IFileCheckerOptions { }
 
     public record FileCheckerOptions : IFileCheckerOptions { }
 }
