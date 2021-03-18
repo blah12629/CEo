@@ -27,6 +27,16 @@ namespace CEo.IO.Tests
         }
 
         [Theory]
+        [InlineData(@"nonexistent_folder\corrupt_files\corrupt_image.png", @"C:\")]
+        [InlineData(@"..\../directory/normal_text.txt", @"C:\corrupt_files\")]
+        public void FileExists_ShouldReturnFalse_WhenDirectoryDoesNotExist(
+            String relativePath, String currentDirectory)
+        {
+            FileSystem.Directory.SetCurrentDirectory(currentDirectory);
+            FileChecker.FileExists(relativePath).Should().BeFalse();
+        }
+
+        [Theory]
         [InlineData(@"..\corrupt_files\corrupt_image.png", @"C:\")]
         [InlineData(@"../normal_text.txt", @"C:\corrupt_files\")]
         public void FileExists_ShouldReturnTrue_WhenRelativePathExists(

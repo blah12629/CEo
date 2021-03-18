@@ -16,7 +16,7 @@ namespace CEo.IO.Tests
         public class MockFileWriterOptions : IFileWriterOptions
         {
             public Boolean CreateDirectories { get; set; } =
-                IFileWriterOptions.DefualtCreateDirectories;
+                IFileWriterOptions.DefaultCreateDirectories;
             public Boolean WarnOnOverwrite { get; set; } =
                 IFileWriterOptions.DefaultWarnOnOverwrite;
         }

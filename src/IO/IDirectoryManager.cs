@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 
@@ -9,6 +10,16 @@ namespace CEo.IO
     {
         Boolean DirectoryExists(String directoryPath);
         IDirectoryInfo CreateDirectory(String directoryPath);
+
+        IEnumerable<String> EnumerateFiles(
+            String directory,
+            SearchOption? searchOptions = SearchOption.TopDirectoryOnly);
+        IEnumerable<String> EnumerateFiles(
+            String directory, String searchPattern,
+            SearchOption? searchOptions = SearchOption.TopDirectoryOnly);
+        IEnumerable<String> EnumerateFiles(
+            String directory, String searchPattern,
+            EnumerationOptions enumerationOptions);
     }
 
     public interface IDirectoryManagerOptions { }
@@ -75,6 +86,30 @@ namespace CEo.IO
 
             return createdDirectory;
         }
+
+        // UNTESTED
+        public virtual IEnumerable<String> EnumerateFiles(
+            String directory,
+            SearchOption? searchOption = SearchOption.TopDirectoryOnly) =>
+            searchOption.HasValue ?
+                FileSystem.Directory.EnumerateFiles(directory, "*", searchOption.Value) :
+                FileSystem.Directory.EnumerateFiles(directory);
+
+        // UNTESTED
+        public virtual IEnumerable<String> EnumerateFiles(
+            String directory, String searchPattern,
+            SearchOption? searchOption = SearchOption.TopDirectoryOnly) =>
+            searchOption.HasValue ?
+                FileSystem.Directory.EnumerateFiles(
+                    directory, searchPattern, searchOption.Value) :
+                FileSystem.Directory.EnumerateFiles(directory, searchPattern);
+
+        // UNTESTED
+        public virtual IEnumerable<String> EnumerateFiles(
+            String directory, String searchPattern,
+            EnumerationOptions enumerationOptions) =>
+                FileSystem.Directory.EnumerateFiles(
+                    directory, searchPattern, enumerationOptions);
     }
 
     public record DirectoryManagerOptions : IDirectoryManagerOptions { }

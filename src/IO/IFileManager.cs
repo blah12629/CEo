@@ -87,7 +87,7 @@ namespace CEo.IO
     public record FileManagerOptions : IFileManagerOptions
     {
         public Boolean CreateDirectories { get; init; } =
-            IFileManagerOptions.DefualtCreateDirectories;
+            IFileManagerOptions.DefaultCreateDirectories;
 
         public Boolean WarnOnOverwrite { get; init; } =
             IFileManagerOptions.DefaultWarnOnOverwrite;

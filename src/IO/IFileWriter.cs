@@ -32,7 +32,7 @@ namespace CEo.IO
 
     public interface IFileWriterOptions : IFileCheckerOptions, IDirectoryManagerOptions
     {
-        internal const Boolean DefualtCreateDirectories = true,
+        internal const Boolean DefaultCreateDirectories = true,
             DefaultWarnOnOverwrite = false;
 
         Boolean CreateDirectories { get; }
@@ -136,7 +136,7 @@ namespace CEo.IO
     public record FileWriterOptions : IFileWriterOptions
     {
         public Boolean CreateDirectories { get; init; } =
-            IFileWriterOptions.DefualtCreateDirectories;
+            IFileWriterOptions.DefaultCreateDirectories;
 
         public Boolean WarnOnOverwrite { get; init; } =
             IFileWriterOptions.DefaultWarnOnOverwrite;
