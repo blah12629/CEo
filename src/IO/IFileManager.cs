@@ -1,14 +1,25 @@
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO.Abstractions;
+using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace CEo.IO
 {
-    public interface IFileManager : IFileReader, IFileWriter { }
+    public interface IFileManager : IFileReader, IFileWriter
+    {
+        Task DeleteFileAsync(
+            String filePath,
+            CancellationToken cancellationToken = default);
+
+        Task DeleteFilesAsync(
+            IEnumerable<String> filePaths,
+            CancellationToken cancellationToken = default);
+    }
 
     public interface IFileManagerOptions : IFileReaderOptions, IFileWriterOptions { }
 
@@ -36,6 +47,19 @@ namespace CEo.IO
         protected IFileWriter FileWriter { get; }
         protected IFileManagerOptions Options { get; }
         protected ILogger? Logger { get; }
+
+        public virtual Task DeleteFileAsync(
+            String filePath,
+            CancellationToken cancellationToken = default) =>
+            Task.Run(() => FileSystem.File.Delete(filePath), cancellationToken);
+
+        public virtual Task DeleteFilesAsync(
+            IEnumerable<String> filePaths,
+            CancellationToken cancellationToken = default) =>
+            this.BuildAllAsync(filePaths
+                .Select(path => new Func<Task>(() =>
+                    DeleteFileAsync(path, cancellationToken)))
+                .ToArray());
 
         public virtual Boolean FileExists(String filePath) =>
             FileReader.FileExists(filePath);

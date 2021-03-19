@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CEo
+namespace System
 {
     public static partial class Extensions
     {

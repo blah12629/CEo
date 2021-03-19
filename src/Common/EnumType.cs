@@ -10,6 +10,6 @@ namespace CEo
             (StringValue, ToStringValue) = (stringValue, toStringValue);
 
         protected String StringValue { get; }
-        protected String? ToStringValue { get; }
+        protected String ToStringValue { get; }
     }
 }
