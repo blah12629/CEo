@@ -43,5 +43,16 @@ namespace CEo.IO.Tests
                 FileManager.FileExists(paths[i]).Should().BeFalse();
             }
         }
+
+        [Theory]
+        [InlineData("normal_text.txt", @"nonexistent_directory\normal_text.txt")]
+        [InlineData(@"test_directory\test\png.png", @"nonexistent_directory_2\normal_text.txt")]
+        public async Task CopyToAsync_ShouldCreateDirectory_WhenCreateDirectoriesIsTrue(
+            String source, String destination)
+        {
+            await FileManager.CopyToAsync(source, destination);
+            FileManager.FileExists(source).Should().BeTrue();
+            FileManager.FileExists(destination).Should().BeTrue();
+        }
     }
 }

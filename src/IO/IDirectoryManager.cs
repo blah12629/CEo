@@ -82,7 +82,6 @@ namespace CEo.IO
 
             var createdPath = createdDirectory.FullName
                 .Replace(currentDirectory, String.Empty);
-            Logger?.LogInformation($@"`{createdPath}`");
 
             return createdDirectory;
         }

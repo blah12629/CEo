@@ -82,7 +82,7 @@ namespace CEo.IO
 
             if (Options.CreateDirectories)
                 DirectoryManager.CreateDirectory(
-                    Path.GetDirectoryName(filePath) ?? String.Empty);
+                    FileSystem.Path.GetDirectoryName(filePath) ?? String.Empty);
 
             // UNTESTED
             if (Options.WarnOnOverwrite && FileChecker.FileExists(filePath))

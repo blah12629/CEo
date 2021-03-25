@@ -45,5 +45,23 @@ namespace CEo.Tests
         public void ReplaceWhiteSpaceChains(
             String expected, String input, String replacement) =>
                 input.ReplaceWhiteSpaceChains(replacement).Should().Be(expected);
+
+        [Fact]
+        public void GetLongestSubstring_ShouldReturnEmpty_WhenCollectionIsEmpty() =>
+            new String[] { }.GetLongestSubstring().Should().BeEmpty();
+
+        [Theory]
+        [InlineData("value1", "value2", default(String), "value3")]
+        [InlineData("value1", "", "", "value3")]
+        public void GetLongestSubstring_ShouldReturnEmpty_WhenValuesContainsNullOrEmpty(
+            params String[] values) =>
+            values.GetLongestSubstring().Should().BeEmpty();
+
+        [Theory]
+        [InlineData("value", "value1", "value2", "value3")]
+        [InlineData("val", "value1", "valUe2", "value3")]
+        public void GetLongestSubstring_ShouldReturnLongestSubstring_WhenStringsAreValid(
+            String expectedValue, params String[] values) =>
+            values.GetLongestSubstring().Should().Be(expectedValue);
     }
 }

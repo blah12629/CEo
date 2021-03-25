@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace System
@@ -27,5 +29,25 @@ namespace System
 
         public static String ReplaceWhiteSpaceChains(this String value, String replacement) =>
             Regex.Replace(value, _multipleWhiteSpacesPattern, match => replacement);
+
+        public static String GetLongestSubstring(this IEnumerable<String> values)
+        {
+            if (!values.Any() || values.Any(value => String.IsNullOrEmpty(value)))
+                return String.Empty;
+
+            var valuesSorted = values.OrderBy(value => value.Length).ToList().AsReadOnly();
+            var longestSubstring = String.Empty;
+
+            for (var i = 0; i < valuesSorted[0].Length; i ++)
+            {
+                longestSubstring += valuesSorted[0][i];
+
+                for (var j = 0; j < valuesSorted.Count; j ++)
+                    if (valuesSorted[j][0 .. (i + 1)] != longestSubstring)
+                        return longestSubstring[.. (longestSubstring.Length - 1)];
+            }
+
+            return longestSubstring;
+        }
     }
 }

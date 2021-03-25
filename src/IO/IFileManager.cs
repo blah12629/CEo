@@ -19,6 +19,10 @@ namespace CEo.IO
         Task DeleteFilesAsync(
             IEnumerable<String> filePaths,
             CancellationToken cancellationToken = default);
+
+        Task CopyToAsync(
+            String source, String destination,
+            CancellationToken cancellationToken = default);
     }
 
     public interface IFileManagerOptions : IFileReaderOptions, IFileWriterOptions { }
@@ -32,17 +36,30 @@ namespace CEo.IO
         public FileManager(
             IFileSystem fileSystem,
             IFileManagerOptions? options = default,
+            ILogger? logger = default) :
+            this(fileSystem, default, default, default, options, logger) { }
+        public FileManager(
+            IFileSystem fileSystem,
+            IDirectoryManager? directoryManager = default,
+            IFileReader? fileReader = default,
+            IFileWriter? fileWriter = default,
+            IFileManagerOptions? options = default,
             ILogger? logger = default)
         {
             (Options, Logger) = (options ?? new FileManagerOptions(), logger);
             FileSystem = fileSystem;
 
             var fileChecker = new FileChecker(FileSystem, Options, Logger);
-            FileReader = new FileReader(FileSystem, fileChecker, Options, Logger);
-            FileWriter = new FileWriter(FileSystem, fileChecker, default, Options, Logger);
+            DirectoryManager = directoryManager ??
+                new DirectoryManager(FileSystem, Options, Logger);
+            FileReader = fileReader ??
+                new FileReader(FileSystem, fileChecker, Options, Logger);
+            FileWriter = fileWriter ??
+                new FileWriter(FileSystem, fileChecker, DirectoryManager, Options, Logger);
         }
 
         protected IFileSystem FileSystem { get; }
+        protected IDirectoryManager DirectoryManager { get; }
         protected IFileReader FileReader { get; }
         protected IFileWriter FileWriter { get; }
         protected IFileManagerOptions Options { get; }
@@ -60,6 +77,20 @@ namespace CEo.IO
                 .Select(path => new Func<Task>(() =>
                     DeleteFileAsync(path, cancellationToken)))
                 .ToArray());
+
+        public virtual async Task CopyToAsync(
+            String source, String destination,
+            CancellationToken cancellationToken = default)
+        {
+            DirectoryManager.CreateDirectory(FileSystem.Path.GetDirectoryName(destination));
+
+            if (FileExists(destination))
+                await DeleteFileAsync(destination, cancellationToken);
+
+            await Task.Run(
+                () => FileSystem.File.Copy(source, destination),
+                cancellationToken);
+        }
 
         public virtual Boolean FileExists(String filePath) =>
             FileReader.FileExists(filePath);
