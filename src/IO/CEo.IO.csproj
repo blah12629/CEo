@@ -3,6 +3,14 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
 
+    <PackageId>CEo.IO</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Eo Cullano</Authors>
+    <Company>CEo</Company>
+    <Description>This library primarily enables processing of objects to and from different file formats.</Description>
+    <RepositoryUrl>https://github.com/blah12629/CEo</RepositoryUrl>
+
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 

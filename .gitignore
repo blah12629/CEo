@@ -350,6 +350,9 @@ MigrationBackup/
 .ionide/
 
 .vscode/
+nuget.config
+pat.txt
+src/ProjectEuler/
 previews/
 drops_dataset.json
 appsettings.json
